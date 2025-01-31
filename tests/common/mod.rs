@@ -1,3 +1,5 @@
+pub mod logger;
+
 use std::sync::{Arc, LazyLock, Mutex, MutexGuard};
 
 use vulkano::VulkanLibrary;
