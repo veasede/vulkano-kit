@@ -3,3 +3,4 @@ pub mod device;
 pub mod queue;
 pub mod buffer;
 pub mod command;
+pub mod descriptor;
