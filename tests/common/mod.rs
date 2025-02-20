@@ -1,5 +1,4 @@
 pub mod logger;
-mod playground;
 
 use std::sync::{Arc, LazyLock, Mutex, MutexGuard};
 

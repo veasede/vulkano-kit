@@ -13,4 +13,5 @@ incremental = true
 debug = 1
 codegen-units = 16
 
-
+[workspace]
+members = ["playground"]
