@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use vulkano::{
     descriptor_set::{
-        allocator::StandardDescriptorSetAllocator,
+        allocator::{DescriptorSetAllocator, StandardDescriptorSetAllocator},
         layout::{
             DescriptorSetLayout,
             DescriptorSetLayoutBinding,
@@ -14,8 +14,8 @@ use vulkano::{
 };
 
 
-pub fn create_standard_allocator(device: Arc<Device>) -> StandardDescriptorSetAllocator {
-    StandardDescriptorSetAllocator::new(device.clone(), Default::default())
+pub fn create_descriptor_set_allocator(device: Arc<Device>) -> Arc<dyn DescriptorSetAllocator> {
+    Arc::new(StandardDescriptorSetAllocator::new(device.clone(), Default::default()))
 }
 
 type BindingVec = Vec<DescriptorSetLayoutBinding>;
