@@ -20,7 +20,7 @@ pub fn create_descriptor_set_allocator(device: Arc<Device>) -> Arc<dyn Descripto
 
 type BindingVec = Vec<DescriptorSetLayoutBinding>;
 
-pub fn create_layout<T: Into<BindingVec>>(
+pub fn create_descriptor_set_layout<T: Into<BindingVec>>(
     device: Arc<Device>,
     bindings: T,
 ) -> Result<Arc<DescriptorSetLayout>, Validated<vulkano::VulkanError>> {
