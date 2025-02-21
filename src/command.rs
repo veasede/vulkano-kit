@@ -4,39 +4,29 @@ use thiserror::Error;
 
 use vulkano::{
     command_buffer::{
-        allocator::{
-            StandardCommandBufferAllocator,
-            StandardCommandBufferAllocatorCreateInfo
-        },
-        AutoCommandBufferBuilder,
-        CommandBufferExecError,
-        CommandBufferUsage,
+        allocator::{CommandBufferAllocator, StandardCommandBufferAllocator, StandardCommandBufferAllocatorCreateInfo},
+        AutoCommandBufferBuilder, CommandBufferExecError, CommandBufferUsage,
         PrimaryAutoCommandBuffer,
     },
     device::{Device, Queue},
     sync::{self, GpuFuture},
-    Validated,
-    VulkanError,
+    Validated, VulkanError,
 };
 
-
-pub fn create_standard_allocator(device: Arc<Device>) -> StandardCommandBufferAllocator {
-    StandardCommandBufferAllocator::new(device, StandardCommandBufferAllocatorCreateInfo::default())
+pub fn create_command_buffer_allocator(device: Arc<Device>) -> Arc<dyn CommandBufferAllocator> {
+    Arc::new(StandardCommandBufferAllocator::new(device, StandardCommandBufferAllocatorCreateInfo::default()))
 }
 
 pub fn create_primary_builder(
-    device: Arc<Device>,
+    allocator: Arc<dyn CommandBufferAllocator>,
     queue_family_index: u32,
     usage: CommandBufferUsage,
 ) -> Result<
-    AutoCommandBufferBuilder<
-        PrimaryAutoCommandBuffer<StandardCommandBufferAllocator>,
-        StandardCommandBufferAllocator,
-    >,
+    AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>,
     Validated<VulkanError>,
 > {
     AutoCommandBufferBuilder::primary(
-        &create_standard_allocator(device),
+        allocator,
         queue_family_index,
         usage,
     )
