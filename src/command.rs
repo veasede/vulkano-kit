@@ -41,7 +41,7 @@ pub enum CommandExecErr {
     Validated(#[from] Validated<VulkanError>),
 }
 
-type CommandVec = Vec<Arc<PrimaryAutoCommandBuffer>>;
+pub type CommandVec = Vec<Arc<PrimaryAutoCommandBuffer>>;
 
 pub fn execute_commands_sync<T: Into<CommandVec>>(
     device: Arc<Device>,
