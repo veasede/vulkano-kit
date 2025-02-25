@@ -1,4 +1,5 @@
 mod basic_compute;
+mod image_manipulation;
 
 use std::sync::Arc;
 use vulkano::{
@@ -18,6 +19,7 @@ type CaseFn = fn(&Utils) -> CommandBuilder;
 
 static CASES: &[CaseFn] = &[
     basic_compute::case,
+    image_manipulation::case,    
 ];
 
 
