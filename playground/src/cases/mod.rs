@@ -8,6 +8,7 @@ use vulkano::{
 };
 use vulkano_kit::command::{execute_commands_sync, CommandVec};
 
+
 pub struct Utils {
     pub device: Arc<Device>,
     pub queues: Vec<Arc<Queue>>,
@@ -15,7 +16,9 @@ pub struct Utils {
 }
 
 type CommandBuilder = AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>;
-type CaseFn = fn(&Utils) -> CommandBuilder;
+type CaseCallback = Option<Box<dyn Fn()>>;
+type CaseReturn = (CommandBuilder, CaseCallback);
+type CaseFn = fn(&Utils) -> CaseReturn;
 
 static CASES: &[CaseFn] = &[
     basic_compute::case,
@@ -27,16 +30,31 @@ pub fn process_cases(utils: &Utils) {
     let queue = utils.queues.first().unwrap();
 
     let mut command_buffers: CommandVec = vec![];
+    let mut callbacks: Vec<CaseCallback> = vec![];
 
     for case in CASES.iter() {
-        let command_buffer_builder = case(utils);
+        let (command_buffer_builder, callback) = case(utils);
 
         let command_buffer = command_buffer_builder
             .build()
             .expect("Failed to build command buffer");
 
         command_buffers.push(command_buffer);
+        callbacks.push(callback);
     }
 
     execute_commands_sync(utils.device.clone(), queue.clone(), command_buffers).unwrap();
+
+    for callback in callbacks {
+        if let Some(func) = callback {
+            func();
+        }
+    }
+}
+
+pub fn wrap_callback<F>(f: F) -> CaseCallback
+where
+    F: Fn() + 'static,
+{
+    Some(Box::new(f))
 }

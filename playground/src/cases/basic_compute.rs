@@ -1,5 +1,5 @@
 use crate::shaders;
-use super::{CommandBuilder, Utils};
+use super::{wrap_callback, CaseReturn, Utils};
 
 use vulkano::{
     self,
@@ -14,23 +14,19 @@ use vulkano::{
     shader::ShaderStages,
 };
 
-use vulkano_kit::*;
+use vulkano_kit::{buffer::create_basic_buffer_from_iter, *};
 
-use buffer::{create_basic_allocator, create_basic_buffer};
+use buffer::create_basic_allocator;
 use command::{create_command_buffer_allocator, create_primary_builder};
 use descriptor::{create_descriptor_set_allocator, create_descriptor_set_layout};
 use pipeline::{crate_pipeline_layout, create_compute_pipeline};
 
 
-pub fn case(utils: &Utils) -> CommandBuilder {
+pub fn case(utils: &Utils) -> CaseReturn {
     let memory_allocator = create_basic_allocator(utils.device.clone());
 
-    let mut data: [u32; 65536] = [0; 65536];
-    data.iter_mut().enumerate().for_each(|(i, v)| {
-        *v = i as u32;
-    });
-
-    let buffer = create_basic_buffer(
+    let data = 0..65536u32;
+    let buffer = create_basic_buffer_from_iter(
         data,
         memory_allocator,
         BufferUsage::STORAGE_BUFFER,
@@ -93,5 +89,13 @@ pub fn case(utils: &Utils) -> CommandBuilder {
             .unwrap();
     }
 
-    command_buffer_builder
+    let callback = move || {
+        let content = buffer.read().unwrap();
+
+        for (n, val) in content.iter().enumerate() {
+            assert_eq!(*val, n as u32 * 12);
+        }
+    };
+
+    (command_buffer_builder, wrap_callback(callback))
 }
