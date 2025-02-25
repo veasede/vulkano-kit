@@ -1,9 +1,12 @@
 mod cases;
 mod shaders;
 
+use std::sync::Arc;
+
+use cases::{process_cases, Utils};
 use vulkano::{
     self,
-    device::{Device, DeviceCreateInfo, QueueCreateInfo, QueueFlags},
+    device::{Device, DeviceCreateInfo, Queue, QueueCreateInfo, QueueFlags},
 };
 
 use vulkano_kit::*;
@@ -33,7 +36,7 @@ fn main() {
             .next()
             .expect("Failed to get next queue family index");
 
-    let (device, mut queues) = Device::new(
+    let (device, mut _queues) = Device::new(
         physical_device,
         DeviceCreateInfo {
             queue_create_infos: vec![QueueCreateInfo {
@@ -45,5 +48,15 @@ fn main() {
     )
     .expect("Failed to create device");
 
+    let queues: Vec<Arc<Queue>> = _queues.collect();
+
+    
+    let utils: Utils = Utils {
+        device,
+        queues,
+        queue_family_index,
+    };
+
+    process_cases(&utils);
     println!("Everything succeeded!");
 }
