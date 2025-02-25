@@ -7,3 +7,4 @@ edition = "2021"
 vulkano = "0.35.1"
 vulkano-shaders = "0.35.0"
 vulkano-kit = { path = "../" }
+image = "0.25.5"
