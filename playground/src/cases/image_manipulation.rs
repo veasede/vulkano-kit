@@ -1,4 +1,4 @@
-use super::{CaseReturn, Utils};
+use super::{wrap_callback, CaseReturn, Utils};
 
 use vulkano::{
     buffer::BufferUsage,
@@ -8,11 +8,13 @@ use vulkano::{
     memory::allocator::MemoryTypeFilter,
 };
 
-use vulkano_kit::*;
+use vulkano_kit::{
+    buffer::{create_basic_allocator, create_basic_buffer_from_iter, empty_iter},
+    command::{create_command_buffer_allocator, create_primary_builder},
+    image::create_2d_image,
+};
 
-use buffer::{create_basic_allocator, create_basic_buffer_from_iter, empty_iter};
-use command::{create_command_buffer_allocator, create_primary_builder};
-use image::create_2d_image;
+use ::image::{ImageBuffer, Rgba};
 
 
 pub fn case(utils: &Utils) -> CaseReturn {
@@ -56,5 +58,11 @@ pub fn case(utils: &Utils) -> CaseReturn {
         ))
         .unwrap();
 
-    (command_buffer_builder, None)
+    let callback = move || {
+        let image_content = buffer.read().unwrap();
+        let res = ImageBuffer::<Rgba<u8>, _>::from_raw(1024, 1024, &image_content[..]).unwrap();
+        res.save("out/image.png").unwrap();
+    };
+
+    (command_buffer_builder, wrap_callback(callback))
 }
